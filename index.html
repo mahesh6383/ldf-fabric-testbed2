@@ -1,0 +1,120 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>LDF Testbed 2: Data Breach in a Research Data Commons</title>
+<style>
+:root{--bg:#f4f7f9;--fg:#0d1c25;--mut:#587079;--card:#fff;--line:#d3dde2;--acc:#0f8fa0;--bad:#c0392b;--ok:#12805c;--warn:#b7791f;color-scheme:light;box-sizing:border-box;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#060b11;--fg:#e8f2f5;--mut:#8ba4ae;--card:#0d1620;--line:#1d3140;--acc:#3fd0e0;--bad:#ff6b5b;--ok:#4be0a0;--warn:#ffc24b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#060b11;--fg:#e8f2f5;--mut:#8ba4ae;--card:#0d1620;--line:#1d3140;--acc:#3fd0e0;--bad:#ff6b5b;--ok:#4be0a0;--warn:#ffc24b;color-scheme:dark}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1150px;margin:auto;padding:20px 16px 40px}
+h1{font-size:clamp(22px,4vw,30px);margin:0;letter-spacing:-.4px}h2{font-size:16px;margin:0 0 8px}
+.kick{color:var(--acc);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
+.sub{color:var(--mut);margin:6px 0 14px;max-width:860px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-top:14px}
+.hd{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:8px}.hd small{color:var(--mut)}
+canvas.sc{width:100%;aspect-ratio:4/3;display:block;border-radius:10px;cursor:default;background:#07101a}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.k{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11px;color:var(--mut)}
+.k b{display:block;font:700 18px ui-monospace,Menlo,Consolas,monospace;color:var(--fg)}
+.fn{margin-top:8px;font-size:12.5px;color:var(--mut)}
+#cap{margin:14px 0 4px;min-height:48px;font-size:clamp(16px,2.6vw,20px);font-weight:600;text-align:center;transition:opacity .4s}
+.bar{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+button{font:inherit;padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+button.p{background:var(--acc);border-color:var(--acc);color:#031014;font-weight:700}
+canvas.ch{width:100%;aspect-ratio:3/1;display:block}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--mut);margin-top:8px}
+.row input{vertical-align:middle;width:120px}
+.cb{display:grid;gap:6px;margin-top:8px}.cb div{display:grid;grid-template-columns:90px 1fr 70px;gap:8px;align-items:center;font-size:12px;color:var(--mut)}
+.tr{height:12px;background:var(--line);border-radius:4px;overflow:hidden}.tr i{display:block;height:100%}
+code,.eq{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+.eq{display:block;padding:8px 10px;margin:6px 0;overflow-x:auto;white-space:nowrap}
+.tri{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:14px}
+ul{margin:6px 0 0;padding-left:18px;color:var(--mut)}li{margin:3px 0}.mut{color:var(--mut);font-size:13px}
+</style></head><body><main>
+<div class="kick">Living Digital Fabric · Simulation testbed 2 · Security scenario</div>
+<h1>Data Breach in a Research Data Commons</h1>
+<p class="sub">A research community stores 120 sensitive records on 36 nodes. An adversary starts compromising nodes. The testbed compares two ways of holding data: whole records in one place (the object-centric paradigm) and records dissolved into shares across the field (the LDF paradigm), and measures how much data leaks, how fast defence reacts, and what it costs.</p>
+<div class="bar"><button class="p" id="bPlay">▶ Run scripted experiment</button><button id="bAtt">⏯ Attack: off</button><button id="bStr">Attacker: informed</button><button id="bRe">↺ Reset</button><button id="bCsv">⬇ Download run log (CSV)</button></div>
+<div id="cap">Press play, or start the attack yourself. An informed attacker goes after the nodes holding the most data.</div>
+<div class="grid">
+<section class="card"><div class="hd"><h2>A. Object-centric store</h2><small>whole records on one controller</small></div><canvas class="sc" id="c0"></canvas><div class="kp" id="k0"></div><div class="fn" id="f0"></div></section>
+<section class="card"><div class="hd"><h2>B. Living Digital Fabric</h2><small>records dissolved into shares</small></div><canvas class="sc" id="c1"></canvas><div class="kp" id="k1"></div><div class="fn" id="f1"></div></section>
+</div>
+<div class="row" style="justify-content:center;margin-top:10px"><span>Node size = records it holds data for</span><span style="color:#17b8c8">● honest</span><span style="color:#ff5a4a">● compromised</span><span style="color:#e0a030">◌ quarantined and refreshed</span></div>
+<div class="grid">
+<section class="card"><h2>Records exposed over time</h2><canvas class="ch" id="ch"></canvas><div class="row"><span style="color:#e0a030">■ Object-centric</span><span style="color:#17a6b8">■ Fabric</span><span>y: records exposed (%)</span></div>
+<div class="row"><label>Attack rate <input type="range" id="rate" min="0.2" max="3" step="0.1" value="1"> <code id="rv">1.0/s</code></label><label>Detection per observer <input type="range" id="det" min="0" max="4" step="0.1" value="1"> <code id="dv">1.0%/tick</code></label></div></section>
+<section class="card"><h2>Cost of breach (cumulative, relative units)</h2>
+<div class="cb"><div>Object-centric<span class="tr"><i id="bc0" style="background:#e0a030"></i></span><b id="vc0">0</b></div><div>Fabric<span class="tr"><i id="bc1" style="background:#17a6b8"></i></span><b id="vc1">0</b></div></div>
+<p id="sv" class="mut" style="margin:8px 0 0">Start an attack to compare.</p>
+<div class="row"><label>Record value <input type="range" id="val" min="0" max="3" step=".1" value="1"> <code id="vv">1.0</code></label><label>Response cost <input type="range" id="rsp" min="0" max="3" step=".1" value="1"> <code id="rp">1.0</code></label></div>
+<p class="mut" style="margin:8px 0 0">Cost = exposed records × record value + response events × response cost × 0.5. Response events are quarantines plus share refreshes, and they are charged to both designs. Units are relative and the weights are editable assumptions, not currency.</p></section>
+</div>
+<div class="tri">
+<section class="card"><h2>Principle 1: threshold sharing</h2><span class="eq">record → n = 5 shares, any k = 3 reconstruct</span><p class="mut">Cryptography (Shamir, 1979): fewer than k shares reveal nothing about the record. The fabric stores each record this way across five random nodes, so an attacker must hold three of a record's five nodes at once. The object-centric store needs only one node. LDF's own encoding is field and topological-code inspired, and threshold sharing is the established proxy used here.</p></section>
+<section class="card"><h2>Principle 2: peer monitoring</h2><span class="eq">P(detect) = 1 − (1 − d)<sup>m</sup></span><p class="mut">Immune-system logic. In the fabric, each compromised node is watched by m honest neighbours, each noticing anomalies with probability d per tick. In the object-centric design only the controller monitors, so if the controller itself falls, nobody notices. This is a stated modelling assumption, and you can change d.</p></section>
+<section class="card"><h2>Principle 3: proactive refresh</h2><span class="eq">detect → quarantine 20 ticks → refresh shares</span><p class="mut">Proactive secret sharing (Herzberg et al., 1995) re-randomizes shares so stolen ones become useless, like cell turnover limiting a pathogen. A record that was already reconstructed stays exposed. Refresh only stops further accumulation.</p></section>
+</div>
+<section class="card" style="margin-top:14px"><h2>Method, assumptions, and limitations</h2>
+<ul><li><b>Setup:</b> 36 nodes, 120 records, seeded layout and seeded random draws, so a run repeats exactly for the same settings. The attacker compromises one node per interval (set by the attack-rate slider).</li>
+<li><b>Informed attacker:</b> always targets the honest node with the most data holdings. <b>Random attacker:</b> draws the same random target for both designs.</li>
+<li><b>Analytic check:</b> for c randomly compromised nodes, the expected fraction of exposed records is the hypergeometric tail P(X ≥ 3), X ~ Hypergeometric(36, c, 5). The fabric panel shows it next to the simulated value.</li>
+<li><b>What the result means:</b> object-centric exposure is all-or-nothing at one node. Fabric exposure depends on a race between attack rate and detection. Push the attack rate up and the detection down and the fabric breaks too. The claim is a higher breach threshold and slower, graceful degradation, not invulnerability.</li>
+<li><b>Limits:</b> a software simulation; the object-centric store is a stylised single store (real systems add replication and encryption at rest); detection probabilities are assumptions; one run per setting with no statistical replicates; no network or hardware layer. Planned work: Monte Carlo over seeds, stronger baselines (encrypted replicated stores), an adaptive attacker, and an edge testbed.</li></ul></section>
+</main>
+<script>
+const N=36,REC=120,SH=5,K=3,DPR=Math.min(2,window.devicePixelRatio||1),$=id=>document.getElementById(id);
+let sd=5;const R=()=>(sd=sd*16807%2147483647)/2147483647;
+const P=[[.5,.5]];for(let i=1;i<N;i++){const r1=i<=11,k=r1?i-1:i-12,c=r1?11:22,a=k/c*6.283+(r1?0:.2)+(R()-.5)*.25,r=(r1?.2:.37)+(R()-.5)*.04;P.push([.5+Math.cos(a)*r*1.2,.52+Math.sin(a)*r*.88])}
+function knn(){const S=new Set();for(let i=0;i<N;i++){P.map((p,j)=>[j,(p[0]-P[i][0])**2+(p[1]-P[i][1])**2]).filter(a=>a[0]!==i).sort((a,b)=>a[1]-b[1]).slice(0,3).forEach(a=>S.add(Math.min(i,a[0])+'-'+Math.max(i,a[0])))}return[...S].map(s=>s.split('-').map(Number))}
+let rs=42;const RS=()=>(rs=rs*16807%2147483647)/2147483647;
+function mk(star){const E=star?[...Array(N-1)].map((_,i)=>[0,i+1]):knn(),hold=Array(N).fill(0),H=[],nbr=Array.from({length:N},()=>[]);E.forEach(([i,j])=>{nbr[i].push(j);nbr[j].push(i)});
+ if(star){for(let r=0;r<REC;r++)H.push([0]);hold[0]=REC}else for(let r=0;r<REC;r++){const s=new Set();while(s.size<SH)s.add(Math.floor(RS()*N));const a=[...s];H.push(a);a.forEach(i=>hold[i]++)}
+ const ord=[...Array(N).keys()].sort((a,b)=>hold[b]-hold[a]||a-b);
+ return{star,E,hold,H,nbr,ord,st:Array(N).fill(0),until:Array(N).fill(0),expd:Array(REC).fill(false),nexp:0,comp:0,ev:0,det:null,h:[],fx:[]}}
+let W,t=0,att=false,strat='t',RATE=1,D=.01,VAL=1,RSP=1,LOG=[],ax=0;
+function init(){rs=42;W=[mk(true),mk(false)];t=0;att=false;LOG=[];$('bAtt').textContent='⏯ Attack: off'}
+const C=(n,k)=>{let r=1;for(let i=0;i<k;i++)r=r*(n-i)/(i+1);return r};
+const hyp=c=>{let s=0;for(let x=K;x<=SH;x++)if(x<=c&&SH-x<=N-c)s+=C(c,x)*C(N-c,SH-x);return s/C(N,SH)};
+function step(w,hit){for(let i=0;i<N;i++)if(w.st[i]===2&&t>=w.until[i])w.st[i]=0;
+ if(hit){let p=-1;if(strat==='t'){for(const i of w.ord)if(w.st[i]===0){p=i;break}}else{const hl=[];for(let i=0;i<N;i++)if(w.st[i]===0)hl.push(i);if(hl.length)p=hl[Math.floor(ax*hl.length)]}
+  if(p>=0){w.st[p]=1;w.fx.push({i:p,a:0})}}
+ for(let i=0;i<N;i++)if(w.st[i]===1){let d=false;if(w.star){d=i!==0&&w.st[0]!==1&&RS()<D}else{let m=0;w.nbr[i].forEach(j=>{if(w.st[j]===0)m++});d=RS()<1-Math.pow(1-D,m)}
+  if(d){w.st[i]=2;w.until[i]=t+20;w.ev++;if(w.det===null)w.det=t}}
+ w.comp=w.st.filter(s=>s===1).length;
+ if(w.star){if(w.st[0]===1&&w.nexp<REC){w.expd.fill(true);w.nexp=REC}}
+ else for(let r=0;r<REC;r++)if(!w.expd[r]){let c=0;for(const h of w.H[r])if(w.st[h]===1)c++;if(c>=K){w.expd[r]=true;w.nexp++}}}
+function draw(w,c){const g=c.getContext('2d'),Wd=c.width,Ht=c.height;
+ const bg=g.createRadialGradient(Wd/2,Ht/2,0,Wd/2,Ht/2,Wd*.7);bg.addColorStop(0,'#0c1c2b');bg.addColorStop(1,'#050b12');g.fillStyle=bg;g.fillRect(0,0,Wd,Ht);
+ w.E.forEach(([i,j])=>{g.strokeStyle='rgba(70,190,210,.22)';g.lineWidth=DPR;g.beginPath();g.moveTo(P[i][0]*Wd,P[i][1]*Ht);g.lineTo(P[j][0]*Wd,P[j][1]*Ht);g.stroke()});
+ for(let i=0;i<N;i++){const x=P[i][0]*Wd,y=P[i][1]*Ht,r=(3+11*Math.sqrt(w.hold[i]/REC))*DPR,s=w.st[i];g.beginPath();g.arc(x,y,r,0,6.283);
+  if(s===1){g.fillStyle='#ff5a4a';g.shadowColor='#ff5a4a';g.shadowBlur=(14+6*Math.sin(t/4))*DPR}else if(s===2){g.fillStyle='#26394a';g.strokeStyle='#e0a030';g.lineWidth=2*DPR}else{g.fillStyle='#17b8c8';g.shadowColor='#17b8c8';g.shadowBlur=8*DPR}
+  g.fill();if(s===2)g.stroke();g.shadowBlur=0}
+ w.fx=w.fx.filter(f=>f.a<1);w.fx.forEach(f=>{g.strokeStyle=`rgba(255,90,70,${1-f.a})`;g.lineWidth=3*DPR;g.beginPath();g.arc(P[f.i][0]*Wd,P[f.i][1]*Ht,(8+f.a*50)*DPR,0,6.283);g.stroke();f.a+=.05});
+ if(w.nexp===REC){g.fillStyle='rgba(255,90,70,.9)';g.font=`700 ${22*DPR}px system-ui`;g.textAlign='center';g.fillText('ALL RECORDS EXPOSED',Wd/2,Ht-16*DPR);g.textAlign='left'}}
+function ui(k){const w=W[k],p=Math.round(w.nexp/REC*100),sec=v=>v===null?'none yet':(v/16.7).toFixed(1)+' s';
+ $('k'+k).innerHTML=`<div class="k">Records exposed<b style="color:var(--${p>50?'bad':p>0?'warn':'ok'})">${p}%</b></div><div class="k">Compromised now<b>${w.comp}</b></div><div class="k">Nodes to breach<b>${w.star?1:K}</b></div><div class="k">First detection<b style="font-size:14px">${sec(w.det)}</b></div>`;
+ $('f'+k).innerHTML=w.star?'One node holds 100% of records, so one compromise reads everything. Only the controller monitors, so a compromised controller goes unnoticed.':`No single node can read any record. Analytic expectation at ${w.comp} compromised: <b>${(hyp(w.comp)*100).toFixed(1)}%</b>. Quarantine and refresh events: <b>${w.ev}</b>.`}
+function chart(){const c=$('ch'),g=c.getContext('2d'),Wd=c.width,Ht=c.height,cs=getComputedStyle(document.documentElement),mut=cs.getPropertyValue('--mut'),ln=cs.getPropertyValue('--line'),y0=Ht-16*DPR,x0=30*DPR,Y=v=>y0-(v/100)*(Ht-26*DPR);
+ g.clearRect(0,0,Wd,Ht);g.font=`${11*DPR}px system-ui`;g.fillStyle=mut;g.strokeStyle=ln;g.lineWidth=DPR;[0,50,100].forEach(v=>{g.beginPath();g.moveTo(x0,Y(v));g.lineTo(Wd,Y(v));g.stroke();g.fillText(v,2*DPR,Y(v)+4*DPR)});
+ [['#e0a030',0],['#17a6b8',1]].forEach(([col,k])=>{g.strokeStyle=col;g.lineWidth=2*DPR;g.beginPath();W[k].h.forEach((v,i)=>{const x=x0+i/399*(Wd-x0-4*DPR);i?g.lineTo(x,Y(v)):g.moveTo(x,Y(v))});g.stroke()})}
+const cost=w=>w.nexp*VAL+w.ev*RSP*.5;
+function costUI(){const a=cost(W[0]),b=cost(W[1]),mx=Math.max(a,b,1);$('bc0').style.width=a/mx*100+'%';$('bc1').style.width=b/mx*100+'%';$('vc0').textContent=a.toFixed(1);$('vc1').textContent=b.toFixed(1);
+ if(a>0)$('sv').innerHTML=`Fabric cumulative cost is <b>${Math.abs(Math.round((1-b/a)*100))}% ${b<=a?'lower':'higher'}</b> than the object-centric store under the current weights.`}
+function fit(){document.querySelectorAll('canvas').forEach(c=>{const r=c.getBoundingClientRect();c.width=Math.round(r.width*DPR);c.height=Math.round(r.height*DPR)})}
+function cap(s){const c=$('cap');c.style.opacity=0;setTimeout(()=>{c.textContent=s;c.style.opacity=1},200)}
+function setAtt(v){att=v;$('bAtt').textContent='⏯ Attack: '+(v?'on':'off')}
+function setRate(v){RATE=v;$('rate').value=v;$('rv').textContent=v.toFixed(1)+'/s'}
+const S=[[0,'Scenario: a research data commons holds 120 sensitive records on 36 nodes.'],[3,'An adversary begins compromising nodes, always taking the one with the most data.',()=>{strat='t';$('bStr').textContent='Attacker: informed';setAtt(true)}],[9,'Object-centric: one compromised controller exposes every record. Fabric: no single node can read anything.'],[19,'Fabric defence: neighbours detect the anomaly, quarantine the node, and refresh its shares.'],[29,'The attacker escalates to 3 compromises per second. Defence is now a race.',()=>setRate(3)],[43,'Honest limit: exposure creeps up because attack outpaces detection. The fabric degrades gradually, not all at once.'],[52,'Design rule: raise the number of nodes needed to breach, and detect faster than the attacker moves.'],[60,'Your turn: move the attack and detection sliders and find where the fabric breaks.']];
+let st=-1,si=0;
+function tick(){t++;if(st>=0){st++;while(si<S.length&&st>=S[si][0]*16.7){cap(S[si][1]);if(S[si][2])S[si][2]();si++}if(si>=S.length)st=-1}
+ const INT=Math.max(1,Math.round(16.7/RATE)),hit=att&&t%INT===0;if(hit)ax=RS();
+ W.forEach((w,k)=>{step(w,hit);draw(w,$('c'+k))});
+ if(t%6===0){W.forEach((w,k)=>{w.h.push(w.nexp/REC*100);if(w.h.length>400)w.h.shift();ui(k)});chart();costUI();if(LOG.length<5000)LOG.push([t,W[0].nexp,W[1].nexp,W[0].comp,W[1].comp,W[0].ev,W[1].ev,cost(W[0]).toFixed(2),cost(W[1]).toFixed(2)])}}
+$('bPlay').onclick=()=>{init();st=0;si=0};$('bAtt').onclick=()=>{st=-1;setAtt(!att)};
+$('bStr').onclick=()=>{strat=strat==='t'?'r':'t';$('bStr').textContent='Attacker: '+(strat==='t'?'informed':'random')};
+$('bRe').onclick=()=>{st=-1;init();cap(S[0][1])};
+$('bCsv').onclick=()=>{const b=new Blob(['tick,exposed_objectcentric,exposed_fabric,compromised_objectcentric,compromised_fabric,events_objectcentric,events_fabric,cost_objectcentric,cost_fabric\n'+LOG.map(r=>r.join(',')).join('\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='ldf_breach_run_log.csv';a.click()};
+$('rate').oninput=e=>{RATE=+e.target.value;$('rv').textContent=RATE.toFixed(1)+'/s'};$('det').oninput=e=>{D=+e.target.value/100;$('dv').textContent=(+e.target.value).toFixed(1)+'%/tick'};
+$('val').oninput=e=>{VAL=+e.target.value;$('vv').textContent=VAL.toFixed(1)};$('rsp').oninput=e=>{RSP=+e.target.value;$('rp').textContent=RSP.toFixed(1)};
+addEventListener('resize',fit);init();fit();setInterval(tick,60);
+</script></body></html>
